@@ -1,0 +1,32 @@
+AppBundle\Entity\Category:
+  constraints:
+    - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity: name
+  properties:
+    name:
+      - NotBlank: ~
+    description:
+      - NotBlank: ~
+
+AppBundle\Entity\Posts:
+  constraints:
+    - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity: name
+  properties:
+    name:
+      - NotBlank: ~
+    content:
+      - NotBlank: ~
+    category:
+      - NotBlank: ~
+    file:
+      - File:
+          maxSize: 2048k
+
+AppBundle\Entity\Comments:
+  properties:
+    content:
+      - NotBlank: ~
+    author:
+      - Regex:
+          pattern: '/^[А-Я|A-Z|ЇІЄҐ]+[а-я|a-z|ЇїІіЄєҐґ]+\s[А-Я|A-Z|ЇІЄҐ]+[а-я|a-z|ЇїІіЄєҐґ]+$/'
+          message: must contain two words, both capitalized
+

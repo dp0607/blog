@@ -1,0 +1,110 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Post</h1>
+
+    <table>
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ post.id }}</td>
+            </tr>
+            <tr>
+                <th>Name</th>
+                <td>{{ post.name }}</td>
+            </tr>
+            <tr>
+                <th>Content</th>
+                <td>{{ post.content }}</td>
+            </tr>
+            <tr>
+                <th>File</th>
+                <td><img src="/uploads/{{ post.file }}"</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <ul>
+        <li>
+            <a href="{{ path('posts_index') }}">Back to the list</a>
+        </li>
+        <li>
+            <a href="{{ path('posts_edit', { 'id': post.id }) }}">Edit</a>
+        </li>
+        <li>
+            {{ form_start(delete_form) }}
+                <input type="submit" value="Delete">
+            {{ form_end(delete_form) }}
+        </li>
+    </ul>
+
+    <!-- Comments Form -->
+        <div class="card my-4">
+            <h5 class="card-header">Leave a Comment:</h5>
+            <div class="card-body">
+                <form id="form">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input id="comments_author" type="text" name="author" class="form-control">
+                        <p class="error"></p>
+                    </div>
+                    <div class="form-group">
+                        <textarea id="comments_content" name="content" class="form-control"></textarea>
+                        <p class="error"></p>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+
+    <div class="comments">
+        {% if comments is not empty %}
+            {% for comment in comments %}
+                <div class="media mb-4">
+                    <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
+                    <div class="media-body">
+                        <h5 class="mt-0">{{ comment.author }}</h5>
+                        <p>{{ comment.content }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        $(document).ready(function(){
+            $('#form').submit(function (e) {
+                $('.error').text('')
+
+                var data = {
+                    tokenId: '{{ csrf_token('token_id') }}',
+                    author: $('#comments_author').val(),
+                    content:$('#comments_content').val(),
+                    type: 1,
+                    entity_id:'{{ post.id }}'
+                }
+
+                e.preventDefault();
+                $.ajax({
+                    type:'POST',
+                    url:'/comments/new',
+                    data: data,
+                    success: function(response){
+                        if(response.error==0){
+                            $('#form')[0].reset();
+                            $('.comments').append(response.template)
+                        }else{
+                            $.each(response.messages, function(key, value){
+                                console.log(key)
+                                $('#comments_'+key).parent().find('.error').text(value)
+                            })
+                            $('form')[0].reset();
+                        }
+                    }
+                })
+            })
+        })
+    </script>
+{% endblock %}
