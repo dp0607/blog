@@ -18,8 +18,7 @@ class RequestListener
 
     public function onKernelRequest(GetResponseEvent $event)
     {
-
-        $session = new Session();
+        $session = $event->getRequest()->getSession();
         if(!$session->get('old')){
             $session->set('old',1);
 
@@ -27,10 +26,7 @@ class RequestListener
                 'ip'=>$this->getUserIpAddr(),
                 'browse'=>$this->getUserBrowser()
             ]);
-
-
         }
-
     }
 
     public function  getUserIpAddr(){
